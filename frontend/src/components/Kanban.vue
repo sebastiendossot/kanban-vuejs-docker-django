@@ -64,7 +64,15 @@ export default {
         this.data.columns[colNum].content.push({text: text});
       }
       this.newItem = '';
-      // Shaaall weeeee push to the baaack?
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        }
+      }
+      this.axios.get('/api/kanban/', config).then((response) => {
+        console.log(response.data)
+      })
     },
     removeItem (colNum, index) {
       this.data.columns[colNum].content.splice(index, 1);
@@ -73,11 +81,11 @@ export default {
       if (this.itemDragged !== item) {
         this.itemDragged = item;
         this.initialColumn = colNum;
-      }  
+      }
     },
     dropped (colNum, index) {
       if (this.currentColumnDraggedOver !== null) {
-        this.removeItem (colNum, index);        
+        this.removeItem(colNum, index);
         this.addItem(this.currentColumnDraggedOver, this.itemDragged);
       } else {
         this.addItem(this.initialColumn, this.itemDragged);
