@@ -44,7 +44,7 @@ class ItemViewSet(viewsets.ModelViewSet):
   serializer_class = ItemSerializer 
 
   def get_queryset(self):
-    return list(Column.objects.all())
+    return list(Item.objects.all())
 
   def perform_create(self, serializer):
     serializer.save() 
