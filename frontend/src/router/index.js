@@ -9,11 +9,12 @@ import VueAxios from 'vue-axios';
 Vue.use(Router);
 Vue.use(Vuex);
 
-var axiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:8000/'
-});
+// var axiosInstance = axios.create({
+//   baseURL: 'http://127.0.0.1:8000/'
+// });
 
-Vue.use(VueAxios, axiosInstance);
+// Vue.use(VueAxios, axiosInstance);
+Vue.use(VueAxios, axios);
 
 export default new Router({
   routes: [

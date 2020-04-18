@@ -8,9 +8,9 @@
       </div>
     </div>
     <div class="row">
-      <div class="col"  v-for="(column, colNum) in data.columns" v-bind:key="column.title" v-on:dragenter="dragEnterColumn(colNum)" v-on:dragleave="dragLeaveColumn">
+      <div class="col"  v-for="(column, colNum) in columns" v-bind:key="column.title" v-on:dragenter="dragEnterColumn(colNum)" v-on:dragleave="dragLeaveColumn">
          <h1>{{column.title}}</h1>
-        <div class="card text-white bg-dark mb-3" v-for="(item, index) in column.content" v-on:dragstart="dragging(colNum,index, item.text)"  v-on:dragend="dropped(colNum,index)" v-bind:key="index" draggable="true">
+        <div class="card text-white bg-dark mb-3" v-for="(item, index) in column.items" v-on:dragstart="dragging(colNum,index, item.text)"  v-on:dragend="dropped(colNum,index)" v-bind:key="index" draggable="true">
           <div class="card-body">
             <h5 class="card-title">{{item.text}}</h5>
           </div>
@@ -21,37 +21,13 @@
 </template>
 
 <script>
+const API_URL = 'http://localhost:8000';
+
 export default {
   name: 'Kanban',
   data () {
     return {
-      data: {
-        columns: [
-          {
-            title: 'To Do',
-            content: [
-              { text: 'Learn JtestavaScript' },
-              { text: 'Learn Vue' },
-              { text: 'Build something awesome' }
-            ]
-
-          },
-          {
-            title: 'In Progress',
-            content: [
-              { text: 'Learning Vuejs' }
-            ]
-
-          },
-          {
-            title: 'Done',
-            content: [
-              { text: '42' },
-              { text: 'Learn Vue' }
-            ]
-          }
-        ]
-      },
+      columns: [],
       newItem: '',
       itemDragged: null,
       currentColumnDraggedOver: null,
@@ -60,30 +36,50 @@ export default {
   },
   methods: {
     addItem (colNum, text) {
+      var colNumDb = colNum + 1; // array starts at 0 but colNums start at 1
       if (text !== '') {
-        this.data.columns[colNum].content.push({text: text});
+        this.newItem = text;
       }
-      this.newItem = '';
+      this.columns[colNum].items.push({text: this.newItem});
+      this.$forceUpdate();
+
       const config = {
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
         }
-      }
-      this.axios.get('/api/kanban/', config).then((response) => {
-        console.log(response.data)
-      })
+      };
+      console.log(this.newItem)
+      colNum++; // array starts at 0 but colNums start at 1
+      var data = {
+            text: this.newItem,
+            column: colNumDb 
+            }
+      this.axios.post(`${API_URL}/api/item/`, data, config);
+      this.newItem = '';
     },
     removeItem (colNum, index) {
-      this.data.columns[colNum].content.splice(index, 1);
+      var itemToDelete = this.columns[colNum].items[index].id; // array starts at 0 but colNums start at 1
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+        }
+      };    
+      this.axios.delete(`${API_URL}/api/item/${itemToDelete}/`, config);
+      this.columns[colNum].items.splice(index, 1);
     },
     dragging (colNum, index, item) {
+      
       if (this.itemDragged !== item) {
         this.itemDragged = item;
         this.initialColumn = colNum;
       }
     },
     dropped (colNum, index) {
+      
       if (this.currentColumnDraggedOver !== null) {
         this.removeItem(colNum, index);
         this.addItem(this.currentColumnDraggedOver, this.itemDragged);
@@ -93,14 +89,36 @@ export default {
       this.itemDragged = null;
     },
     dragEnterColumn (colNum) {
+      
       this.currentColumnDraggedOver = colNum;
     },
     dragLeaveColumn (e) {
+      
       if (this.counterDrag === 0 && (e.screenX !== 0 && e.screenY !== 0 && e.clientX !== 0 && e.clientY !== 0)) {
         this.currentColumnDraggedOver = null;
       }
     }
 
+  },
+  beforeMount () {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+      }
+    };
+    this.axios.get(`${API_URL}/api/kanban/`, config).then((response) => {
+      console.log(response.data);
+      response.data.forEach((element, index) => {
+        this.columns[index] = response.data[index];
+      });
+      this.columns.forEach((elounet, index) => {
+        console.log(this.columns[index]);
+      });
+      this.$forceUpdate();
+      console.log(this.columns);
+    });
   }
 };
 </script>

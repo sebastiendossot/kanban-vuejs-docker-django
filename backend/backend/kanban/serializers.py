@@ -11,5 +11,4 @@ class ColumnSerializer(serializers.ModelSerializer):
 class ItemSerializer(serializers.ModelSerializer):
   class Meta:
     model = Item
-    # fields = ('question', 'answer', 'deck')
-    fields = '__all__'
+    fields = ['text', 'column']
