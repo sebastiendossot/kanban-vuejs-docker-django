@@ -13,8 +13,16 @@ export default {
     postItem (data) {
       this.axios.post(`${API_URL}/api/item/`, data, this.getConfig());
     },
-    async getItems () {
-      this.axios.get(`${API_URL}/api/kanban/`, this.getConfig());
+    getItems (columns) {
+      return this.axios.get(`${API_URL}/api/kanban/`, this.getConfig())
+        .then(r => {
+          console.log('Le fion', r.data);
+          r.data.forEach((element, index) => {
+            this.columns[index] = r.data[index];
+          });
+          return columns;
+        }
+        );
     },
     deleteItem (itemToDelete) {
       this.axios.delete(`${API_URL}/api/item/${itemToDelete}/`, this.getConfig());

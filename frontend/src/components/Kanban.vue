@@ -95,14 +95,8 @@ export default {
 
   },
   async beforeMount () {
-    var r = await this.getItems();
-    console.log(r)
-    r.data.forEach((element, index) => {
-      this.columns[index] = r.data[index];
-    })
-      // .catch(e => console.log(e));
-      this.$forceUpdate();
-    // });
+    this.columns = await this.getItems(this.columns);
+    this.$forceUpdate();
   }
 };
 </script>
