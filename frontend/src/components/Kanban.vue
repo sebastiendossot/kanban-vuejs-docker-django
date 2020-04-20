@@ -13,7 +13,7 @@
     <div class="row">
       <div class="col"  v-for="(column, colNum) in columns" v-bind:key="column.title" v-on:dragenter="dragEnterColumn(colNum)" v-on:dragleave="dragLeaveColumn">
          <h1>{{column.title}}</h1>
-        <div class="card text-white bg-dark mb-3" v-for="(item, index) in column.items" v-on:dragstart="dragging(colNum,index, item.text)"  v-on:dragend="dropped(colNum,index)" v-bind:key="index" draggable="true">
+        <div class="card text-white bg-dark mb-3" v-for="(item, index) in column.items" v-on:dragstart="dragging(colNum,index, item.text)"  v-on:dragend="dropped(colNum,index, $event)" v-bind:key="index" draggable="true">
           <div class="card-body">
             <h5 class="card-title">{{item.text}}</h5>
           </div>
@@ -26,48 +26,51 @@
 <script>
 
 import apiKanban from '../mixins/apiKanban';
-// const API_URL = 'http://localhost:8000';
+
+const mapState = Vuex.mapState;
 
 export default {
   name: 'Kanban',
   mixins: [apiKanban],
+  // computed: mapState(['items']),
   data () {
     return {
       columns: [],
       newItem: '',
       itemDragged: null,
       currentColumnDraggedOver: null,
-      initialColumn: null
+      initialColumn: null,
+      counterDrag: 0
     };
   },
   computed: {
     isHoveringDelete: function () {
       return {
-        "btn btn-outline-primary": this.currentColumnDraggedOver == -1
-      }
+        'border border-primary': this.currentColumnDraggedOver === -1
+      };
     }
   },
   methods: {
     addItem (colNum, text) {
-      var colNumDb = colNum + 1; // array starts at 0 but colNums start at 1
       if (text !== '') {
         this.newItem = text;
       }
       this.columns[colNum].items.push({text: this.newItem});
       this.$forceUpdate();
-      var data = {
-            text: this.newItem,
-            column: colNumDb
-            }
-      this.postItem(data)
+      this.postItem({
+        text: this.newItem,
+        column: colNum + 1 // array starts at 0 but colNums start at 1
+      });
       this.newItem = '';
     },
     removeItem (colNum, index) {
+      console.log("item", this.columns[colNum].items[index])
       var itemToDelete = this.columns[colNum].items[index].id;
       this.deleteItem(itemToDelete);
       this.columns[colNum].items.splice(index, 1);
     },
     dragging (colNum, index, item) {
+      console.log('pet');
       if (this.itemDragged !== item) {
         this.itemDragged = item;
         this.initialColumn = colNum;
@@ -83,13 +86,16 @@ export default {
         this.addItem(this.initialColumn, this.itemDragged);
       }
       this.itemDragged = null;
+      this.currentColumnDraggedOver = null;
     },
     dragEnterColumn (colNum) {
+      this.counterDrag++;
       this.currentColumnDraggedOver = colNum;
     },
     dragLeaveColumn (e) {
-      if (this.counterDrag === 0 && (e.screenX !== 0 && e.screenY !== 0 && e.clientX !== 0 && e.clientY !== 0)) {
-        this.currentColumnDraggedOver = null;
+      this.counterDrag--;
+      if (this.counterDrag === 0 && (e.screenX !== 0 && e.screenY !== 0)) {
+        this.currentColumnDraggedOver = this.initialColumn;
       }
     }
 

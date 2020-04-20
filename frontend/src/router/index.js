@@ -1,10 +1,12 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import Router from 'vue-router';
-import HelloWorld from '@/components/HelloWorld';
 import Kanban from '@/components/Kanban';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
+
+import 'es6-promise/auto';
+
 
 Vue.use(Router);
 Vue.use(Vuex);
@@ -18,11 +20,6 @@ Vue.use(VueAxios, axios);
 
 export default new Router({
   routes: [
-    {
-      path: '/hello',
-      name: 'HelloWorld',
-      component: HelloWorld
-    },
     {
       path: '/',
       name: 'Kanban',
