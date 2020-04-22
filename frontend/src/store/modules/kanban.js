@@ -22,7 +22,7 @@ const getters = {
   kanbanTotalItems: (state, getters) => {
     return null;
   }
-}
+};
 
 // actions
 const actions = {
@@ -33,7 +33,7 @@ const actions = {
         commit('SET_COLUMNS', columns);
         // commit('SET_LOADING', false);
       })
-      .catch((error) => console.log('Erreur getting user', error));
+      .catch((error) => console.log('Erreur getting columns', error));
   },
   addItemToColumn ({ state, commit }, text, column, isNewItem) {
     if (isNewItem) {
@@ -54,18 +54,15 @@ const actions = {
       commit('UPDATE_INITIAL_COLUMN', column);
     }
   },
-
-  dropped ({ commit, state }, colNum, index) {
-    // if (this.currentColumnDraggedOver !== null) {
-    //   this.removeItem(colNum, index);
-    //   if (this.currentColumnDraggedOver !== -1) {
-    //     this.addItem(this.currentColumnDraggedOver, this.itemDragged);
-    //   }
-    // } else {
-    //   this.addItem(this.initialColumn, this.itemDragged);
-    // }
-    // this.itemDragged = null;
-    // this.currentColumnDraggedOver = null;
+  dropped ({ commit, dispatch, state }, colNum, index) {
+    if (state.currentColumnDraggedOver !== null) {
+      if (state.currentColumnDraggedOver === -1) {
+        dispatch('deleteItem');
+      } else {
+        dispatch('addItemToColumn');
+      }
+    }
+    commit('RESET_DRAGGED');
   },
   dragEnterColumn ({ commit, state }, colNum) {
     commit('INCREASE_COUNTER_DRAG');
@@ -74,33 +71,34 @@ const actions = {
   dragLeaveColumn ({ commit, state }, e) {
     commit('DECREASE_COUNTER_DRAG');
     if (state.counterDrag === 0 && (e.screenX !== 0 && e.screenY !== 0)) {
-      this.currentColumnDraggedOver = this.initialColumn;
+      commit('SET_CURRENT_COLUMN_DRAGGED_OVER', state.initialColumn);
     }
+  },
+  deleteItem ({ commit, state }, itemToDelete) {
+    apiKanban.deleteItem(itemToDelete).then(() => {
+      commit('DELETE_ITEM', this.currentColumnDraggedOver, this.itemDragged);
+    });
   }
-}
+};
 
 // mutations
 const mutations = {
-  PUSH_ITEM (state, { id }) {
-    // state.items.push({
-    //   id,
-    //   quantity: 1
-    // });
+  PUSH_ITEM (state, { id, text, column }) {
+    state.columns[column].items.push({
+      id,
+      text,
+      column
+    });
   },
-  UPDATE_ITEM (state, { id }) {
-    // state.items.push({
-    //   id,
-    //   quantity: 1
-    // });
+  UPDATE_ITEM (state, {id, text, column, newColumn}) { // Can be modified towork with text too
+    const items = state.columns[column].items;
+    const index = items.findIndex(obj => obj.id === id);
+    state.columns[column].items[index].column = newColumn;
   },
   REMOVE_ITEM (state, { id }) {
-    //
-    // removeItem (colNum, index) {
-    //   console.log("item", this.columns[colNum].items[index])
-    //   var itemToDelete = this.columns[colNum].items[index].id;
-    //   this.deleteItem(itemToDelete);
-    //   this.columns[colNum].items.splice(index, 1);
-    // },
+    const items = state.columns[column].items;
+    const index = items.findIndex(obj => obj.id === id);
+    state.columns[state.initialColumn].items.splice(index, 1);
   },
   SET_ITEMS (state, { items }) {
     state.items = items;
@@ -109,7 +107,7 @@ const mutations = {
   },
   SET_ITEM_DRAGGED (state, { items }) {
     state.items = items;
-  },  
+  },
   SET_INITIAL_COLUMN (state, { items }) {
     state.items = items;
   },
@@ -118,6 +116,10 @@ const mutations = {
   },
   DECREASE_COUNTER_DRAG () {
     state.counterDrag--;
+  },
+  RESET_DRAGGED () {
+    state.itemDragged = null;
+    state.currentColumnDraggedOver = null;
   }
 };
 

@@ -64,7 +64,7 @@ export default {
       this.newItem = '';
     },
     removeItem (colNum, index) {
-      console.log("item", this.columns[colNum].items[index])
+      console.log('item', this.columns[colNum].items[index]);
       var itemToDelete = this.columns[colNum].items[index].id;
       this.deleteItem(itemToDelete);
       this.columns[colNum].items.splice(index, 1);
