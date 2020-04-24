@@ -4,8 +4,10 @@ import kanban from './modules/kanban';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   modules: {
     kanban
   }
 });
+
+export default store;

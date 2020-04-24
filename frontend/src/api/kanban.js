@@ -1,3 +1,4 @@
+import axios from 'axios';
 const API_URL = 'http://localhost:8000';
 export default {
   getConfig () {
@@ -10,23 +11,23 @@ export default {
     };
   },
   postItem (data) {
-    this.axios.post(`${API_URL}/api/item/`, data, this.getConfig());
+    axios.post(`${API_URL}/api/item/`, data, this.getConfig());
   },
   updateItem (data, itemToUpdate) {
-    this.axios.post(`${API_URL}/api/item/${itemToUpdate}/`, data, this.getConfig());
+    axios.put(`${API_URL}/api/item/${itemToUpdate}/`, data, this.getConfig());
   },
-  getItems (columns) {
-    return this.axios.get(`${API_URL}/api/kanban/`, this.getConfig())
+  getColumns () {
+    return axios.get(`${API_URL}/api/kanban/`, this.getConfig())
       .then(r => {
-        console.log('Le fion', r.data);
-        r.data.forEach((element, index) => {
-          this.columns[index] = r.data[index];
-        });
-        return columns;
+        console.log('blablabla', r.data);
+        // r.data.forEach((element, index) => {
+        //   columns[index] = r.data[index];
+        // });
+        return r.data;
       }
       );
   },
   deleteItem (itemToDelete) {
-    this.axios.delete(`${API_URL}/api/item/${itemToDelete}/`, this.getConfig());
+    axios.delete(`${API_URL}/api/item/${itemToDelete}/`, this.getConfig());
   }
 };

@@ -13,24 +13,29 @@ const state = {
 
 // getters
 const getters = {
-  // kabanItems: (state, getters, rootState) => {
-  //   this.columns = apiKanban.getItems(this.columns);
-  //   this.$forceUpdate();
-  //   return null;
-  // },
+  nothingDragged (state, getters) {
+    return state.currentColumnDraggedOver === null;
+  },
 
-  kanbanTotalItems: (state, getters) => {
-    return null;
+  isHoveringDelete (state, getters) {
+    return {
+      'border border-primary': state.currentColumnDraggedOver === -1
+    };
+  },
+
+  columns (state, getters) {
+    return state.columns;
   }
 };
 
 // actions
 const actions = {
-  getColumns ({ state, commit }) {
+  fetchColumns ({ state, commit }) {
     // commit(SET_LOADING, true);
     apiKanban.getColumns()
       .then((columns) => {
-        commit('SET_COLUMNS', columns);
+        console.log(columns);
+        commit('SET_COLUMNS', { columns });
         // commit('SET_LOADING', false);
       })
       .catch((error) => console.log('Erreur getting columns', error));
@@ -95,13 +100,14 @@ const mutations = {
     const index = items.findIndex(obj => obj.id === id);
     state.columns[column].items[index].column = newColumn;
   },
-  REMOVE_ITEM (state, { id }) {
+  REMOVE_ITEM (state, { id, column }) {
     const items = state.columns[column].items;
     const index = items.findIndex(obj => obj.id === id);
     state.columns[state.initialColumn].items.splice(index, 1);
   },
-  SET_ITEMS (state, { items }) {
-    state.items = items;
+  SET_COLUMNS (state, { columns }) {
+    console.log(columns);
+    state.columns = columns;
   },
   SET_CURRENT_COLUMN_DRAGGED_OVER (state, { items }) {
   },

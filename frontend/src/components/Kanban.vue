@@ -1,14 +1,14 @@
 <template>
   <div class="kanban">
     <h1>Kanban</h1>
-    <div class="input-group mb-3" v-if="currentColumnDraggedOver==null">
+    <div class="input-group mb-3" v-if="nothingDragged">
       <input type="text" class="form-control" placeholder="New TODO" aria-label="New TODO" v-model="newItem" aria-describedby="button-addon2">
       <div class="input-group-append" >
         <button class="btn btn-outline-secondary" v-on:click="addItem(0, newItem)">Button</button>
       </div>
     </div>
-    <div class="alert alert-danger"  v-bind:class="isHoveringDelete" v-if="currentColumnDraggedOver!==null" v-on:dragenter="dragEnterColumn(-1)" v-on:dragleave="dragLeaveColumn">
-      <div>x</div>{{currentColumnDraggedOver}}
+    <div class="alert alert-danger"  v-bind:class="isHoveringDelete" v-if="!nothingDragged" v-on:dragenter="dragEnterColumn(-1)" v-on:dragleave="dragLeaveColumn">
+      <div>x</div>
     </div>
     <div class="row">
       <div class="col"  v-for="(column, colNum) in columns" v-bind:key="column.title" v-on:dragenter="dragEnterColumn(colNum)" v-on:dragleave="dragLeaveColumn">
@@ -25,84 +25,37 @@
 
 <script>
 
-import apiKanban from '../mixins/apiKanban';
+import { mapGetters, mapActions } from 'vuex';
 
-const mapState = Vuex.mapState;
+import { store } from '../store/index';
 
 export default {
   name: 'Kanban',
-  mixins: [apiKanban],
   // computed: mapState(['items']),
   data () {
-    return {
-      columns: [],
-      newItem: '',
-      itemDragged: null,
-      currentColumnDraggedOver: null,
-      initialColumn: null,
-      counterDrag: 0
-    };
-  },
-  computed: {
-    isHoveringDelete: function () {
       return {
-        'border border-primary': this.currentColumnDraggedOver === -1
+        newItem: ''
       };
-    }
-  },
-  methods: {
-    addItem (colNum, text) {
-      if (text !== '') {
-        this.newItem = text;
-      }
-      this.columns[colNum].items.push({text: this.newItem});
-      this.$forceUpdate();
-      this.postItem({
-        text: this.newItem,
-        column: colNum + 1 // array starts at 0 but colNums start at 1
-      });
-      this.newItem = '';
     },
-    removeItem (colNum, index) {
-      console.log('item', this.columns[colNum].items[index]);
-      var itemToDelete = this.columns[colNum].items[index].id;
-      this.deleteItem(itemToDelete);
-      this.columns[colNum].items.splice(index, 1);
-    },
-    dragging (colNum, index, item) {
-      console.log('pet');
-      if (this.itemDragged !== item) {
-        this.itemDragged = item;
-        this.initialColumn = colNum;
-      }
-    },
-    dropped (colNum, index) {
-      if (this.currentColumnDraggedOver !== null) {
-        this.removeItem(colNum, index);
-        if (this.currentColumnDraggedOver !== -1) {
-          this.addItem(this.currentColumnDraggedOver, this.itemDragged);
-        }
-      } else {
-        this.addItem(this.initialColumn, this.itemDragged);
-      }
-      this.itemDragged = null;
-      this.currentColumnDraggedOver = null;
-    },
-    dragEnterColumn (colNum) {
-      this.counterDrag++;
-      this.currentColumnDraggedOver = colNum;
-    },
-    dragLeaveColumn (e) {
-      this.counterDrag--;
-      if (this.counterDrag === 0 && (e.screenX !== 0 && e.screenY !== 0)) {
-        this.currentColumnDraggedOver = this.initialColumn;
-      }
-    }
-
-  },
-  async beforeMount () {
-    this.columns = await this.getItems(this.columns);
-    this.$forceUpdate();
+  computed:  mapGetters('kanban', [
+    'nothingDragged',
+    'isHoveringDelete',
+    'columns'
+  ]),
+  methods: mapActions('kanban', [
+    'fetchColumns',
+    'addItemToColumn',
+    'dragging',
+    'dropped',
+    'dragEnterColumn',
+    'dragLeaveColumn',
+    'deleteItem'
+  ]),
+  
+  beforeMount () {
+    // this.columns = await this.getItems(this.columns);
+    // this.$forceUpdate();
+    this.$store.dispatch('kanban/fetchColumns');
   }
 };
 </script>
