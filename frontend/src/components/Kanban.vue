@@ -13,7 +13,7 @@
     <div class="row">
       <div class="col"  v-for="(column, colNum) in columns" v-bind:key="column.title" v-on:dragenter="dragEnterColumn(colNum)" v-on:dragleave="dragLeaveColumn">
          <h1>{{column.title}}</h1>
-        <div class="card text-white bg-dark mb-3" v-for="(item, index) in column.items" v-on:dragstart="dragging(colNum,index, item.text)"  v-on:dragend="dropped(colNum,index, $event)" v-bind:key="index" draggable="true">
+        <div class="card text-white bg-dark mb-3" v-for="(item, index) in column.items" v-on:dragstart="dragging({colNum, index, item})"  v-on:dragend="dropped" v-bind:key="index" draggable="true">
           <div class="card-body">
             <h5 class="card-title">{{item.text}}</h5>
           </div>
@@ -27,20 +27,19 @@
 
 import { mapGetters, mapActions } from 'vuex';
 
-import { store } from '../store/index';
-
 export default {
   name: 'Kanban',
   // computed: mapState(['items']),
   data () {
-      return {
-        newItem: ''
-      };
-    },
-  computed:  mapGetters('kanban', [
+    return {
+      newItem: ''
+    };
+  },
+  computed: mapGetters('kanban', [
     'nothingDragged',
     'isHoveringDelete',
-    'columns'
+    'columns',
+    'currentColumnDraggedOver'
   ]),
   methods: mapActions('kanban', [
     'fetchColumns',
@@ -51,16 +50,11 @@ export default {
     'dragLeaveColumn',
     'deleteItem'
   ]),
-  
   beforeMount () {
-    // this.columns = await this.getItems(this.columns);
-    // this.$forceUpdate();
     this.$store.dispatch('kanban/fetchColumns');
   }
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 
 <style scoped>
 .hidden {

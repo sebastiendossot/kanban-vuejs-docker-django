@@ -11,23 +11,16 @@ export default {
     };
   },
   postItem (data) {
-    axios.post(`${API_URL}/api/item/`, data, this.getConfig());
+    return axios.post(`${API_URL}/api/item/`, data, this.getConfig());
   },
-  updateItem (data, itemToUpdate) {
-    axios.put(`${API_URL}/api/item/${itemToUpdate}/`, data, this.getConfig());
+  updateItem (id, data) {
+    return axios.put(`${API_URL}/api/item/${id}/`, data, this.getConfig());
   },
   getColumns () {
     return axios.get(`${API_URL}/api/kanban/`, this.getConfig())
-      .then(r => {
-        console.log('blablabla', r.data);
-        // r.data.forEach((element, index) => {
-        //   columns[index] = r.data[index];
-        // });
-        return r.data;
-      }
-      );
+      .then(r => r.data);
   },
   deleteItem (itemToDelete) {
-    axios.delete(`${API_URL}/api/item/${itemToDelete}/`, this.getConfig());
+    return axios.delete(`${API_URL}/api/item/${itemToDelete}/`, this.getConfig());
   }
 };
