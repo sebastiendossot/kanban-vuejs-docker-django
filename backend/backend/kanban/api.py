@@ -2,30 +2,11 @@ from kanban.models import Column, Item
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from .serializers import ColumnSerializer, ItemSerializer
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core import serializers
+import json
 
 
-
-# Kanban Viewset 
-
-# class MyOwnView(APIView):
-#     def get(self, request):
-#       array = []
-#       columns = Column.objects.all()
-#       for column in columns:
-#         # items = Item.objects.filter(column=column.pk)
-#         # column.content = items   
-#         # json_column = serializers.serialize('json', [column])
-#         # print(json_column)
-#         # print(Column.objects.values_list('item', 'item__item'))
-#         # print(json_column)
-        
-#         print(column.items)
-
-#         # array.append(json_column)
-#       print(array)
-#       return HttpResponse(array)
 
 class KanbanViewSet(viewsets.ModelViewSet):
   # queryset = Column.objects.all()
@@ -53,4 +34,22 @@ class ItemViewSet(viewsets.ModelViewSet):
     instance = Item.objects.get(pk = kwargs['item'])
     instance.delete()
     return HttpResponse(kwargs['item'], status=status.HTTP_200_OK)
+
+  def put(self, request, *args, **kwargs):
+    body = json.loads(request.body)
+    item = Item.objects.get(pk=kwargs['item'])
+    oldColumn = item.column.id
+    print('column')
+    print(body['column'])
+    print(item.column.id)
+    item.column = Column.objects.get(id=body['column'])
+    item.save(update_fields=["column"]) 
+    item_return = {
+      'id': item.id,
+      'text': item.text,
+      'column': item.column.id,
+      'oldColumn': oldColumn
+    }
+    return JsonResponse(item_return, status=status.HTTP_200_OK)
+
      

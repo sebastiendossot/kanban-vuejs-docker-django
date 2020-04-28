@@ -16,7 +16,6 @@ export default {
     getItems (columns) {
       return this.axios.get(`${API_URL}/api/kanban/`, this.getConfig())
         .then(r => {
-          console.log('Le fion', r.data);
           r.data.forEach((element, index) => {
             this.columns[index] = r.data[index];
           });

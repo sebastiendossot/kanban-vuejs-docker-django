@@ -11,10 +11,10 @@
       <div>x</div>
     </div>
     <div class="row">
-      <div class="col"  v-for="(column, colNum) in columns" v-bind:key="column.title" v-on:dragenter="dragEnterColumn(colNum)" v-on:dragleave="dragLeaveColumn">
-         <h1>{{column.title}}</h1>
-        <div class="card text-white bg-dark mb-3" v-for="(item, index) in column.items" v-on:dragstart="dragging({colNum, index, item})"  v-on:dragend="dropped" v-bind:key="index" draggable="true">
-          <div class="card-body">
+      <div class="col" v-for="(column, colNum) in columns" v-bind:key="column.title" v-on:dragenter="dragEnterColumn(column.id)" v-on:dragleave="dragLeaveColumn">
+        <h1>{{column.title}}</h1>
+        <div class="card text-white bg-dark mb-3" v-for="(item, index) in column.items" v-on:dragstart="dragging({ colNum: column.id, index, item })"  v-on:dragend="dropped" v-bind:key="index" draggable="true">
+          <div class="card-body">{{colNum}}
             <h5 class="card-title">{{item.text}}</h5>
           </div>
         </div>

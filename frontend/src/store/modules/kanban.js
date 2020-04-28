@@ -51,17 +51,19 @@ const actions = {
           commit('PUSH_ITEM', { id: itemReturned.id, text: itemReturned.text, column: itemReturned.column });
         });
     } else {
+      console.log('Data', colNum);
       return apiKanban.updateItem(item.id, {column: colNum})
-        .then((itemReturned) => {
-          console.log('Returned updated', itemReturned);
-          commit('UPDATE_ITEM', { id: item.id, text: item.text, column: itemReturned.column });
+        .then((result) => {
+          let itemUpdated = result.data;
+          console.log('Returned posted', itemUpdated);
+          commit('UPDATE_ITEM', { id: itemUpdated.id, text: itemUpdated.text, newColumn: itemUpdated.column, oldColumn: itemUpdated.oldColumn });
         });
     }
   },
-  dragging ({ commit, state }, { column, index, item }) {
+  dragging ({ commit, state }, { colNum, index, item }) {
     if (state.itemDragged !== item) {
       commit('SET_ITEM_DRAGGED', { item });
-      commit('SET_INITIAL_COLUMN', { column });
+      commit('SET_INITIAL_COLUMN', { colNum });
     }
   },
   dropped ({ commit, dispatch, state }) {
@@ -75,7 +77,6 @@ const actions = {
     commit('RESET_DRAGGED');
   },
   dragEnterColumn ({ commit, state }, colNum) {
-    console.log('enter column', colNum);
     commit('INCREASE_COUNTER_DRAG');
     commit('SET_CURRENT_COLUMN_DRAGGED_OVER', { colNum: colNum });
   },
@@ -85,8 +86,9 @@ const actions = {
       commit('SET_CURRENT_COLUMN_DRAGGED_OVER', { colNum: state.initialColumn });
     }
   },
-  deleteItem ({ commit, state }, itemToDelete) {
-    apiKanban.deleteItem(itemToDelete).then(() => {
+  deleteItem ({ commit, state }) {
+    console.log("item deleted", state.itemDragged);
+    apiKanban.deleteItem(state.itemDragged.id).then(() => {
       commit('DELETE_ITEM');
     });
   }
@@ -95,28 +97,34 @@ const actions = {
 // mutations
 const mutations = {
   PUSH_ITEM (state, { id, text, column }) {
-    state.columns[column].items.push({
+    const indexColumn = state.columns.findIndex(obj => obj.id === column);
+    state.columns[indexColumn].items.push({
       id,
       text,
       column
     });
   },
-  UPDATE_ITEM (state, {id, text, column, newColumn}) { // Can be modified towork with text too
-    const items = state.columns[column].items;
-    const index = items.findIndex(obj => obj.id === id);
-    state.columns[column].items[index].column = newColumn;
+  UPDATE_ITEM (state, {id, text, newColumn, oldColumn}) { // Can be modified towork with text too
+    const indexNewColumn = state.columns.findIndex(obj => obj.id === newColumn);
+    const indexOldColumn = state.columns.findIndex(obj => obj.id === oldColumn);
+    const index = state.columns[indexOldColumn].items.findIndex(obj => obj.id === id);
+    state.columns[indexOldColumn].items.splice(index, 1);
+    state.columns[indexNewColumn].items.push({
+      id,
+      text,
+      column: newColumn
+    }); // Bad, Playing with columns ids as if they were related to the array 
   },
   DELETE_ITEM (state) { // Might simplify that easily
     const item = state.itemDragged;
-    const items = state.columns[state.initialColumn].items;
-    const index = items.findIndex(obj => obj.id === item.id);
-    state.columns[state.initialColumn].items.splice(index, 1);
+    const indexColumn = state.columns.findIndex(obj => obj.id === state.initialColumn);
+    const index = state.columns[indexColumn].items.findIndex(obj => obj.id === item.id);
+    state.columns[indexColumn].items.splice(index, 1);
   },
   SET_COLUMNS (state, { columns }) {
     state.columns = columns;
   },
   SET_CURRENT_COLUMN_DRAGGED_OVER (state, { colNum }) {
-    
     state.currentColumnDraggedOver = colNum;
   },
   SET_ITEM_DRAGGED (state, { item }) {

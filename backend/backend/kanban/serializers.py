@@ -6,7 +6,7 @@ class ColumnSerializer(serializers.ModelSerializer):
   class Meta:
     model = Column
     depth = 1
-    fields = ['title', 'items']
+    fields = ['id', 'title', 'items']
 
 class ItemSerializer(serializers.ModelSerializer):
   class Meta:
