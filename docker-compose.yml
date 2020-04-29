@@ -1,0 +1,38 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+  django:
+    build: ./backend
+    image: backend 
+    working_dir: /app/backend
+    ports:
+      - "8030:8030" 
+    links:
+      - postgres:postgres
+    command: python3 ./manage.py runserver 0.0.0.0:8030
+    volumes: 
+      - .:/app
+    depends_on: 
+      - db
+  node:
+    build: ./frontend
+    image: frontend
+    user: "node"
+    command: npm
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - django
+  nginx:
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - web-static:/www/static
+    links:
+      - web:web
