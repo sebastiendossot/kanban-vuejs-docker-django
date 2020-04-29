@@ -39,9 +39,6 @@ class ItemViewSet(viewsets.ModelViewSet):
     body = json.loads(request.body)
     item = Item.objects.get(pk=kwargs['item'])
     oldColumn = item.column.id
-    print('column')
-    print(body['column'])
-    print(item.column.id)
     item.column = Column.objects.get(id=body['column'])
     item.save(update_fields=["column"]) 
     item_return = {

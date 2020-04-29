@@ -45,9 +45,9 @@ const actions = {
   },
   addItemToColumn ({ state, commit }, {item, colNum, isNewItem}) {
     if (isNewItem) {
-      return apiKanban.postItem({ text: item.text, column: item.column })
-        .then((itemReturned) => {
-          console.log('Returned posted', itemReturned);
+      return apiKanban.postItem({ text: item, column: colNum })
+        .then((response) => {
+          const itemReturned = response.data;
           commit('PUSH_ITEM', { id: itemReturned.id, text: itemReturned.text, column: itemReturned.column });
         });
     } else {
@@ -71,6 +71,7 @@ const actions = {
       if (state.currentColumnDraggedOver === -1) {
         dispatch('deleteItem');
       } else {
+        console.log("before dispatch", state.itemDragged);
         dispatch('addItemToColumn', { item: state.itemDragged, colNum: state.currentColumnDraggedOver, isNewItem: false });
       }
     }
@@ -87,9 +88,9 @@ const actions = {
     }
   },
   deleteItem ({ commit, state }) {
-    console.log("item deleted", state.itemDragged);
+    const item = state.itemDragged;
     apiKanban.deleteItem(state.itemDragged.id).then(() => {
-      commit('DELETE_ITEM');
+      commit('DELETE_ITEM', {item});
     });
   }
 };
@@ -115,8 +116,7 @@ const mutations = {
       column: newColumn
     }); // Bad, Playing with columns ids as if they were related to the array 
   },
-  DELETE_ITEM (state) { // Might simplify that easily
-    const item = state.itemDragged;
+  DELETE_ITEM (state, {item}) {
     const indexColumn = state.columns.findIndex(obj => obj.id === state.initialColumn);
     const index = state.columns[indexColumn].items.findIndex(obj => obj.id === item.id);
     state.columns[indexColumn].items.splice(index, 1);

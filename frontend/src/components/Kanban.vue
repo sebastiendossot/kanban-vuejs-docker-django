@@ -4,7 +4,7 @@
     <div class="input-group mb-3" v-if="nothingDragged">
       <input type="text" class="form-control" placeholder="New TODO" aria-label="New TODO" v-model="newItem" aria-describedby="button-addon2">
       <div class="input-group-append" >
-        <button class="btn btn-outline-secondary" v-on:click="addItem(0, newItem)">Button</button>
+        <button class="btn btn-outline-secondary" v-on:click="addItemToColumn({item: newItem, colNum: columns[0].id, isNewItem: true})">Button</button>
       </div>
     </div>
     <div class="alert alert-danger"  v-bind:class="isHoveringDelete" v-if="!nothingDragged" v-on:dragenter="dragEnterColumn(-1)" v-on:dragleave="dragLeaveColumn">
@@ -29,7 +29,6 @@ import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'Kanban',
-  // computed: mapState(['items']),
   data () {
     return {
       newItem: ''
