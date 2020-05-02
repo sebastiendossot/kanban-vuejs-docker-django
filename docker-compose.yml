@@ -5,34 +5,31 @@ services:
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
   django:
-    build: ./backend
+    build: ./backend/backend
     image: backend 
-    working_dir: /app/backend
     ports:
-      - "8030:8030" 
-    links:
-      - postgres:postgres
-    command: python3 ./manage.py runserver 0.0.0.0:8030
-    volumes: 
-      - .:/app
+      - "8030:8030"
+    # command: python3 ./manage.py runserver 0.0.0.0:8030
+    # volumes: 
+    #   - .:/app
     depends_on: 
       - db
   node:
     build: ./frontend
     image: frontend
-    user: "node"
-    command: npm
-    volumes:
-      - .:/app
+    ports:
+      - "8020:8020" 
+    # command: npm run dev
+    # volumes:
+    #   - .:/app
     depends_on:
       - db
-      - django
-  nginx:
-    restart: always
-    build: ./nginx
-    ports:
-      - "80:80"
-    volumes:
-      - web-static:/www/static
-    links:
-      - web:web
+  # nginx:
+  #   restart: always
+  #   build: ./nginx
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - web-static:/www/static
+  #   links:
+  #     - web:web

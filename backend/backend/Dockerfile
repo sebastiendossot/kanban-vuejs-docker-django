@@ -7,12 +7,16 @@ ENV POSTGRES_HOST "db"
 ENV POSTGRES_PORT 5432
 ENV POSTGRES_HOST_AUTH_METHOD 'trust'
 
-RUN mkdir /app/backend
+RUN mkdir /app
 
-WORKDIR /app/backend
+WORKDIR /app
 
-COPY requirements.txt /app/backend
+COPY requirements.txt /app
 
 RUN pip3 install -r requirements.txt
 
-COPY . /app/backend
+COPY . /app
+
+# RUN python3 ./manage.py runserver 0.0.0.0:8030
+
+CMD [ "python3", "./manage.py", "runserver", "0.0.0.0:8000" ]
