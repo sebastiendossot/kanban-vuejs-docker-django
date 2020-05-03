@@ -11,7 +11,6 @@ export default {
     };
   },
   postItem (data) {
-    console.log(data)
     return axios.post(`${API_URL}/api/item/`, data, this.getConfig());
   },
   updateItem (id, data) {

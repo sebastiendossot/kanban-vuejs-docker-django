@@ -1,7 +1,6 @@
 import apiKanban from '../../api/kanban';
 
 // initial state
-// shape: [{ id, quantity }]
 const state = {
   columns: [],
   newItem: '',
@@ -55,7 +54,6 @@ const actions = {
       return apiKanban.updateItem(item.id, {column: colNum})
         .then((result) => {
           let itemUpdated = result.data;
-          console.log('Returned posted', itemUpdated);
           commit('UPDATE_ITEM', { id: itemUpdated.id, text: itemUpdated.text, newColumn: itemUpdated.column, oldColumn: itemUpdated.oldColumn });
         });
     }
@@ -71,7 +69,6 @@ const actions = {
       if (state.currentColumnDraggedOver === -1) {
         dispatch('deleteItem');
       } else {
-        console.log("before dispatch", state.itemDragged);
         dispatch('addItemToColumn', { item: state.itemDragged, colNum: state.currentColumnDraggedOver, isNewItem: false });
       }
     }
@@ -114,7 +111,7 @@ const mutations = {
       id,
       text,
       column: newColumn
-    }); // Bad, Playing with columns ids as if they were related to the array 
+    });
   },
   DELETE_ITEM (state, {item}) {
     const indexColumn = state.columns.findIndex(obj => obj.id === state.initialColumn);
