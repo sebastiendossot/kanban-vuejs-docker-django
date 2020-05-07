@@ -1,9 +1,9 @@
 FROM python:3.7
 
 ENV POSTGRES_ENGINE "django.db.backends.postgresql"
-ENV POSTGRES_NAME "postgres"
-ENV POSTGRES_USER "postgres"
-ENV POSTGRES_HOST "db"
+ENV POSTGRES_NAME "kanban"
+ENV POSTGRES_USER "kanban"
+ENV POSTGRES_HOST db
 ENV POSTGRES_PORT 5432
 ENV POSTGRES_HOST_AUTH_METHOD 'trust'
 
@@ -19,4 +19,6 @@ COPY . /app
 
 # RUN python3 ./manage.py runserver 0.0.0.0:8030
 
+# RUN python3 manage.py migrate
 CMD [ "python3", "./manage.py", "runserver", "0.0.0.0:8080" ]
+# CMD [ "python3", "./manage.py", "migrate" ]

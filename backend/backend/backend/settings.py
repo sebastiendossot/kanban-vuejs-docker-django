@@ -31,6 +31,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = (
        'http://localhost:8080',
+       'http://localhost:8000',
+       'http://0.0.0.0:8000',
 )
 
 CORS_ALLOW_HEADERS = [
@@ -104,7 +106,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
       'default': {
-        'ENGINE': os.environ.get("POSTGRES_ENGINE", 'django.db.backends.postgresql_psycopg2'),
+        'ENGINE': os.environ.get("POSTGRES_ENGINE", 'django.db.backends.postgresql'),
         'NAME': os.environ.get("POSTGRES_NAME", 'kanban'),
         'USER': os.environ.get("POSTGRES_USER", 'kanban'),
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD", ''),
