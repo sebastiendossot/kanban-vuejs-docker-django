@@ -25,7 +25,7 @@ SECRET_KEY = 'qt&m@c4ooedo-@4b0)4s3wn^+80g!1qu^g+rz5=7bl^y16!_tq'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['sebastiendossot.fr', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['sebastiendossot.fr', '127.0.0.1', 'localhost', '13.58.107.93']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
